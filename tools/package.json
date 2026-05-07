@@ -1,0 +1,16 @@
+{
+  "name": "quiz-tools",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "One-shot scripts: parse the .docx into questions.json, and generate PNG icons.",
+  "scripts": {
+    "parse": "node parse_docx.mjs",
+    "validate": "node validate.mjs",
+    "icons": "node make_icons.mjs"
+  },
+  "dependencies": {
+    "mammoth": "^1.8.0",
+    "@resvg/resvg-js": "^2.6.2"
+  }
+}

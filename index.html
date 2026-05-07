@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0f172a" />
+<title>Quiz</title>
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<main id="app">
+  <section id="home" class="screen">
+    <h1>Quiz</h1>
+    <p class="subtitle">Daily review</p>
+    <div class="stats">
+      <div class="stat"><span id="stat-due">0</span><label>due today</label></div>
+      <div class="stat"><span id="stat-mastered">0</span><label>mastered</label></div>
+      <div class="stat"><span id="stat-total">0</span><label>total</label></div>
+    </div>
+    <div class="boxes" id="box-bars"></div>
+    <button id="start-btn" class="primary">Start session</button>
+    <button id="start-all-btn" class="ghost">Practice all (random)</button>
+    <details class="advanced">
+      <summary>Advanced</summary>
+      <button id="export-btn" class="ghost small">Export progress</button>
+      <button id="import-btn" class="ghost small">Import progress</button>
+      <button id="reset-btn" class="danger small">Reset all progress</button>
+    </details>
+  </section>
+
+  <section id="session" class="screen hidden">
+    <header class="session-header">
+      <button id="quit-btn" class="icon-btn" aria-label="Quit">&times;</button>
+      <div class="progress-bar"><div id="progress-fill"></div></div>
+      <span id="progress-text">0 / 0</span>
+    </header>
+    <div id="question-text" class="question"></div>
+    <ul id="choices" class="choices"></ul>
+    <div id="feedback" class="feedback hidden"></div>
+    <button id="next-btn" class="primary hidden">Next</button>
+  </section>
+
+  <section id="summary" class="screen hidden">
+    <h1>Done!</h1>
+    <div class="summary-stats">
+      <div class="big-stat"><span id="sum-correct">0</span><label>correct</label></div>
+      <div class="big-stat"><span id="sum-total">0</span><label>total</label></div>
+    </div>
+    <div id="wrong-list-container" class="hidden">
+      <h2>Review wrong</h2>
+      <ul id="wrong-list"></ul>
+    </div>
+    <button id="back-home-btn" class="primary">Back home</button>
+  </section>
+</main>
+<script src="app.js"></script>
+</body>
+</html>

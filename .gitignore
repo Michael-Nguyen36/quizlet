@@ -1,0 +1,6 @@
+tools/node_modules/
+tools/package-lock.json
+*.docx
+*.log
+.DS_Store
+Thumbs.db
