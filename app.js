@@ -130,7 +130,11 @@ function renderHome() {
   els.boxBars.innerHTML = counts
     .map((c, i) => {
       const h = Math.round((c / max) * 100);
-      return `<div class="box-bar"><span class="label">B${i + 1}</span><div class="fill" style="height:${h}%"></div><span class="count">${c}</span></div>`;
+      return `<div class="box-col" data-box="${i + 1}">
+        <span class="count">${c}</span>
+        <div class="bar"><div class="fill" style="height:${h}%"></div></div>
+        <span class="label">B${i + 1}</span>
+      </div>`;
     })
     .join("");
 }

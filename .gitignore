@@ -1,5 +1,6 @@
 tools/node_modules/
 tools/package-lock.json
+tools/shots/
 *.docx
 *.log
 .DS_Store

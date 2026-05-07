@@ -10,7 +10,8 @@
     "icons": "node make_icons.mjs"
   },
   "dependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "mammoth": "^1.8.0",
-    "@resvg/resvg-js": "^2.6.2"
+    "puppeteer-core": "^24.43.0"
   }
 }
