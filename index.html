@@ -95,13 +95,17 @@
       </button>
       <div class="progress-bar"><div id="progress-fill"></div></div>
       <span id="progress-text">0 / 0</span>
+      <span id="timer-text" class="timer-text" aria-live="polite">0:30</span>
     </header>
 
-    <div id="question-text" class="question"></div>
+    <div class="question">
+      <div class="timer-strip"><div class="timer-fill" id="timer-fill"></div></div>
+      <div id="question-text" class="question-body"></div>
+    </div>
     <ul id="choices" class="choices"></ul>
     <div id="feedback" class="feedback hidden"></div>
     <button id="next-btn" class="primary hidden">
-      <span>Next</span>
+      <span id="next-label">Next</span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
     </button>
   </section>

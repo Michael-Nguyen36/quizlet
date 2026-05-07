@@ -479,27 +479,69 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 }
 
 .question {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+.question-body {
   font-size: 19px;
   font-weight: 600;
   line-height: 1.45;
   letter-spacing: -0.01em;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
   padding: 22px 22px;
-  box-shadow: var(--shadow-md);
   white-space: pre-wrap;
+}
+
+/* Timer drain bar — inside the question card, top edge */
+.timer-strip {
+  height: 4px;
+  background: color-mix(in oklab, var(--primary), transparent 88%);
   position: relative;
+  overflow: hidden;
 }
-.question::before {
-  content: "";
+.timer-fill {
   position: absolute;
-  top: 0; left: 22px; right: 22px;
-  height: 3px;
+  inset: 0 auto 0 0;
+  width: 100%;
   background: var(--primary-grad);
-  border-radius: 0 0 3px 3px;
-  opacity: .9;
+  transition: width 1s linear, background .3s ease;
+  will-change: width;
 }
+.timer-fill[data-stage="warn"]   { background: linear-gradient(90deg, #f59e0b 0%, #f97316 100%); }
+.timer-fill[data-stage="danger"] { background: linear-gradient(90deg, #f43f5e 0%, #dc2626 100%); animation: pulseTimer 1s ease-in-out infinite; }
+.timer-fill.frozen { transition: none; }
+.timer-fill.hidden-bar { opacity: 0; }
+
+@keyframes pulseTimer {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: .55; }
+}
+
+/* Numeric timer pill in session header */
+.timer-text {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+  font-variant-numeric: tabular-nums;
+  background: color-mix(in oklab, var(--primary), transparent 88%);
+  padding: 6px 10px;
+  border-radius: 999px;
+  min-width: 46px;
+  text-align: center;
+  line-height: 1;
+  transition: background .25s ease, color .25s ease;
+}
+.timer-text[data-stage="warn"]   { color: #b45309; background: color-mix(in oklab, #f59e0b, transparent 82%); }
+.timer-text[data-stage="danger"] { color: #b91c1c; background: color-mix(in oklab, #f43f5e, transparent 78%); }
+@media (prefers-color-scheme: dark) {
+  .timer-text                      { color: #c4b5fd; }
+  .timer-text[data-stage="warn"]   { color: #fbbf24; }
+  .timer-text[data-stage="danger"] { color: #fca5a5; }
+}
+.timer-text.hidden-bar { opacity: 0; }
 
 .choices {
   list-style: none;

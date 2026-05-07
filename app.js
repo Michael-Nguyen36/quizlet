@@ -3,6 +3,7 @@
 const STORAGE_KEY = "quiz.v1.state";
 const SESSION_SIZE = 20;
 const BOX_INTERVALS = [0, 1, 2, 4, 7, 14]; // index = box number; days between reviews
+const QUESTION_TIME_MS = 30_000;            // per-question time limit
 
 const screens = {
   home: document.getElementById("home"),
@@ -25,8 +26,11 @@ const els = {
   choices: document.getElementById("choices"),
   feedback: document.getElementById("feedback"),
   nextBtn: document.getElementById("next-btn"),
+  nextLabel: document.getElementById("next-label"),
   progressFill: document.getElementById("progress-fill"),
   progressText: document.getElementById("progress-text"),
+  timerFill: document.getElementById("timer-fill"),
+  timerText: document.getElementById("timer-text"),
   sumCorrect: document.getElementById("sum-correct"),
   sumTotal: document.getElementById("sum-total"),
   wrongListContainer: document.getElementById("wrong-list-container"),
@@ -210,23 +214,80 @@ function renderQuestion() {
   const done = session.cursor;
   els.progressFill.style.width = `${(done / total) * 100}%`;
   els.progressText.textContent = `${done + 1} / ${total}`;
+
+  startTimer();
 }
 
-function onAnswer(displayIdx, origIdx) {
-  const item = session.items[session.cursor];
-  if (item.answeredIdx !== null) return;
-  item.answeredIdx = origIdx;
-  const correct = origIdx === item.q.answer;
-  item.correct = correct;
+function startTimer() {
+  stopTimer();
 
-  // Disable & paint
+  // Reset visuals: full bar, neutral color.
+  els.timerFill.classList.remove("frozen", "hidden-bar");
+  els.timerFill.removeAttribute("data-stage");
+  els.timerText.classList.remove("hidden-bar");
+  els.timerText.removeAttribute("data-stage");
+  // Snap to 100% with no transition, then animate down.
+  els.timerFill.classList.add("frozen");
+  els.timerFill.style.width = "100%";
+  void els.timerFill.offsetWidth;            // force reflow so the snap commits
+  els.timerFill.classList.remove("frozen");
+  els.timerFill.style.transition = `width ${QUESTION_TIME_MS}ms linear`;
+  els.timerFill.style.width = "0%";
+
+  const startedAt = performance.now();
+  els.timerText.textContent = formatSeconds(QUESTION_TIME_MS);
+
+  const tick = () => {
+    const remaining = Math.max(0, QUESTION_TIME_MS - (performance.now() - startedAt));
+    const seconds = Math.ceil(remaining / 1000);
+    els.timerText.textContent = formatSeconds(remaining);
+
+    if (seconds <= 5)      { els.timerFill.dataset.stage = "danger"; els.timerText.dataset.stage = "danger"; }
+    else if (seconds <= 10){ els.timerFill.dataset.stage = "warn";   els.timerText.dataset.stage = "warn"; }
+
+    if (remaining <= 0) {
+      stopTimer();
+      onTimeout();
+      return;
+    }
+    session.timerHandle = setTimeout(tick, 200);
+  };
+  session.timerHandle = setTimeout(tick, 200);
+}
+
+function stopTimer() {
+  if (session && session.timerHandle) {
+    clearTimeout(session.timerHandle);
+    session.timerHandle = null;
+  }
+}
+
+function freezeTimer() {
+  // Pin the bar at its current rendered width so it stops shrinking after answer.
+  const w = getComputedStyle(els.timerFill).width;
+  els.timerFill.style.transition = "none";
+  els.timerFill.style.width = w;
+}
+
+function formatSeconds(ms) {
+  const s = Math.max(0, Math.ceil(ms / 1000));
+  return `0:${String(s).padStart(2, "0")}`;
+}
+
+function revealAnswer({ chosenOrigIdx, timedOut }) {
+  const item = session.items[session.cursor];
   const liEls = els.choices.querySelectorAll(".choice");
   liEls.forEach((li) => li.classList.add("disabled"));
   liEls.forEach((li) => {
     const oi = Number(li.dataset.origIdx);
     if (oi === item.q.answer) li.classList.add("correct");
-    else if (oi === origIdx) li.classList.add("wrong");
+    else if (chosenOrigIdx != null && oi === chosenOrigIdx) li.classList.add("wrong");
   });
+
+  const correct = !timedOut && chosenOrigIdx === item.q.answer;
+  item.answeredIdx = chosenOrigIdx == null ? -1 : chosenOrigIdx;
+  item.correct = correct;
+  item.timedOut = !!timedOut;
 
   // Update Leitner progress
   const p = getOrInitProgress(item.q.id);
@@ -245,9 +306,24 @@ function onAnswer(displayIdx, origIdx) {
 
   els.feedback.classList.remove("hidden");
   els.feedback.classList.add(correct ? "correct" : "wrong");
-  els.feedback.textContent = correct ? "Correct" : "Incorrect";
+  els.feedback.textContent = timedOut ? "Time's up" : (correct ? "Correct" : "Incorrect");
   els.nextBtn.classList.remove("hidden");
-  els.nextBtn.textContent = session.cursor === session.items.length - 1 ? "Finish" : "Next";
+  els.nextLabel.textContent = session.cursor === session.items.length - 1 ? "Finish" : "Next";
+}
+
+function onAnswer(displayIdx, origIdx) {
+  const item = session.items[session.cursor];
+  if (item.answeredIdx !== null) return;
+  stopTimer();
+  freezeTimer();
+  revealAnswer({ chosenOrigIdx: origIdx, timedOut: false });
+}
+
+function onTimeout() {
+  const item = session.items[session.cursor];
+  if (item.answeredIdx !== null) return;
+  freezeTimer();
+  revealAnswer({ chosenOrigIdx: null, timedOut: true });
 }
 
 function nextQuestion() {
@@ -260,6 +336,7 @@ function nextQuestion() {
 }
 
 function finishSession() {
+  stopTimer();
   els.sumCorrect.textContent = session.correctCount;
   els.sumTotal.textContent = session.items.length;
 
@@ -289,6 +366,7 @@ function quitSession() {
   if (session.cursor > 0 || session.items[0].answeredIdx !== null) {
     if (!confirm("Quit this session? Progress for answered questions is saved.")) return;
   }
+  stopTimer();
   session = null;
   renderHome();
   show("home");

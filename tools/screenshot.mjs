@@ -86,18 +86,53 @@ await shoot("02-home-mixed", async (page) => {
   await new Promise((r) => setTimeout(r, 800)); // wait for bar fill animation
 });
 
-// 3) Session screen (mid-question)
-await shoot("03-session", async (page) => {
-  await page.click("#start-btn");
-  await new Promise((r) => setTimeout(r, 400));
-});
-
-// 4) Session — after answering wrong
-await shoot("04-session-answered", async (page) => {
+// 3) Session screen — full timer
+await shoot("03-session-full-timer", async (page) => {
   await page.click("#start-btn");
   await new Promise((r) => setTimeout(r, 200));
-  await page.click(".choice"); // click first visible choice (might be right or wrong, that's fine)
+});
+
+// 4) Session — timer in warn (~8s left)
+await shoot("04-session-timer-warn", async (page) => {
+  await page.click("#start-btn");
+  await new Promise((r) => setTimeout(r, 200));
+  await page.evaluate(() => {
+    // Kill the running tick timeouts so our forced values stick.
+    for (let i = 0; i < 100000; i++) clearTimeout(i);
+    const f = document.getElementById("timer-fill");
+    const t = document.getElementById("timer-text");
+    f.style.transition = "none";
+    f.style.width = "27%";
+    f.dataset.stage = "warn";
+    t.dataset.stage = "warn";
+    t.textContent = "0:08";
+  });
+  await new Promise((r) => setTimeout(r, 100));
+});
+
+// 5) Session — after picking an answer (timer freezes)
+await shoot("05-session-answered", async (page) => {
+  await page.click("#start-btn");
+  await new Promise((r) => setTimeout(r, 200));
+  await page.click(".choice");
   await new Promise((r) => setTimeout(r, 600));
+});
+
+// 6) Session — timer in danger (~3s left)
+await shoot("06-session-timer-danger", async (page) => {
+  await page.click("#start-btn");
+  await new Promise((r) => setTimeout(r, 200));
+  await page.evaluate(() => {
+    for (let i = 0; i < 100000; i++) clearTimeout(i);
+    const f = document.getElementById("timer-fill");
+    const t = document.getElementById("timer-text");
+    f.style.transition = "none";
+    f.style.width = "10%";
+    f.dataset.stage = "danger";
+    t.dataset.stage = "danger";
+    t.textContent = "0:03";
+  });
+  await new Promise((r) => setTimeout(r, 100));
 });
 
 // 5) Dark mode
