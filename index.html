@@ -3,57 +3,128 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="theme-color" content="#0f172a" />
+<meta name="theme-color" content="#6d28d9" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#0b0f1f" media="(prefers-color-scheme: dark)" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Quiz" />
 <title>Quiz</title>
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
 <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+<div class="bg-orbs" aria-hidden="true">
+  <span class="orb orb-1"></span>
+  <span class="orb orb-2"></span>
+  <span class="orb orb-3"></span>
+</div>
+
 <main id="app">
+  <!-- HOME -->
   <section id="home" class="screen">
-    <h1>Quiz</h1>
-    <p class="subtitle">Daily review</p>
+    <header class="brand">
+      <div class="brand-mark">
+        <img src="icons/icon.svg" alt="" width="40" height="40" />
+      </div>
+      <div class="brand-text">
+        <h1>Quiz</h1>
+        <p class="subtitle">Daily review · Spaced repetition</p>
+      </div>
+    </header>
+
     <div class="stats">
-      <div class="stat"><span id="stat-due">0</span><label>due today</label></div>
-      <div class="stat"><span id="stat-mastered">0</span><label>mastered</label></div>
-      <div class="stat"><span id="stat-total">0</span><label>total</label></div>
+      <div class="stat stat-due">
+        <div class="stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <span id="stat-due">0</span>
+        <label>due today</label>
+      </div>
+      <div class="stat stat-mastered">
+        <div class="stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.39 4.84L20 8l-4 3.9.94 5.5L12 14.77l-4.94 2.63L8 11.9 4 8l5.61-1.16L12 2z"/></svg>
+        </div>
+        <span id="stat-mastered">0</span>
+        <label>mastered</label>
+      </div>
+      <div class="stat stat-total">
+        <div class="stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        </div>
+        <span id="stat-total">0</span>
+        <label>total</label>
+      </div>
     </div>
-    <div class="boxes" id="box-bars"></div>
-    <button id="start-btn" class="primary">Start session</button>
-    <button id="start-all-btn" class="ghost">Practice all (random)</button>
+
+    <div class="card mastery">
+      <div class="card-head">
+        <h2>Mastery levels</h2>
+        <span class="hint">Boxes 1 → 5</span>
+      </div>
+      <div class="boxes" id="box-bars"></div>
+    </div>
+
+    <div class="actions">
+      <button id="start-btn" class="primary">
+        <span>Start session</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+      <button id="start-all-btn" class="ghost">Practice all (random)</button>
+    </div>
+
     <details class="advanced">
       <summary>Advanced</summary>
-      <button id="export-btn" class="ghost small">Export progress</button>
-      <button id="import-btn" class="ghost small">Import progress</button>
-      <button id="reset-btn" class="danger small">Reset all progress</button>
+      <div class="advanced-actions">
+        <button id="export-btn" class="ghost small">Export progress</button>
+        <button id="import-btn" class="ghost small">Import progress</button>
+        <button id="reset-btn" class="danger small">Reset all progress</button>
+      </div>
     </details>
   </section>
 
+  <!-- SESSION -->
   <section id="session" class="screen hidden">
     <header class="session-header">
-      <button id="quit-btn" class="icon-btn" aria-label="Quit">&times;</button>
+      <button id="quit-btn" class="icon-btn" aria-label="Quit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
       <div class="progress-bar"><div id="progress-fill"></div></div>
       <span id="progress-text">0 / 0</span>
     </header>
+
     <div id="question-text" class="question"></div>
     <ul id="choices" class="choices"></ul>
     <div id="feedback" class="feedback hidden"></div>
-    <button id="next-btn" class="primary hidden">Next</button>
+    <button id="next-btn" class="primary hidden">
+      <span>Next</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </button>
   </section>
 
+  <!-- SUMMARY -->
   <section id="summary" class="screen hidden">
-    <h1>Done!</h1>
+    <div class="summary-hero">
+      <div class="summary-emoji" aria-hidden="true">🎉</div>
+      <h1>Nice work</h1>
+      <p class="subtitle">Session complete</p>
+    </div>
     <div class="summary-stats">
-      <div class="big-stat"><span id="sum-correct">0</span><label>correct</label></div>
+      <div class="big-stat correct"><span id="sum-correct">0</span><label>correct</label></div>
       <div class="big-stat"><span id="sum-total">0</span><label>total</label></div>
     </div>
     <div id="wrong-list-container" class="hidden">
-      <h2>Review wrong</h2>
+      <h2>Review wrong answers</h2>
       <ul id="wrong-list"></ul>
     </div>
-    <button id="back-home-btn" class="primary">Back home</button>
+    <button id="back-home-btn" class="primary">
+      <span>Back home</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
   </section>
 </main>
 <script src="app.js"></script>

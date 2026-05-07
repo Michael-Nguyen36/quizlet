@@ -1,7 +1,7 @@
 "use strict";
 
 // Bump this string whenever you push new code so devices fetch the new version.
-const CACHE_NAME = "quiz-v1";
+const CACHE_NAME = "quiz-v2";
 const ASSETS = [
   "./",
   "./index.html",
